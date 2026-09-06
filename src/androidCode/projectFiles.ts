@@ -1148,11 +1148,119 @@ class PinValidationTest {
     category: 'gradle',
     content: `distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-bin.zip
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.10.2-bin.zip
 networkTimeout=10000
 validateDistributionUrl=true
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
+`,
+  },
+  {
+    path: '.github/workflows/build-apk.yml',
+    name: 'build-apk.yml',
+    language: 'yaml',
+    category: 'gradle',
+    content: `name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Call APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+          cache-disabled: true
+
+      - name: Prepare Gradle & Wrapper
+        run: |
+          if [ -d "android-project" ]; then
+            cd android-project
+          fi
+
+          mkdir -p gradle/wrapper
+          if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
+            echo "Downloading gradle-wrapper.jar (v8.10.2)..."
+            curl -sSLo gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.10.2/gradle/wrapper/gradle-wrapper.jar
+          fi
+          chmod +x gradlew
+
+      - name: Build Debug APK
+        run: |
+          if [ -d "android-project" ]; then
+            cd android-project
+          fi
+          ./gradlew assembleDebug --stacktrace --no-daemon
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Call-App-Debug-APK
+          path: |
+            **/app/build/outputs/apk/debug/*.apk
+            android-project/app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      - name: Create GitHub Release (on tag push)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            **/app/build/outputs/apk/debug/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+`,
+  },
+  {
+    path: 'app/proguard-rules.pro',
+    name: 'proguard-rules.pro',
+    language: 'properties',
+    category: 'gradle',
+    content: `# ProGuard rules for Call Android application
+-keepattributes *Annotation*
+-dontwarn java.lang.invoke.*
+
+# Room database rules
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
+
+# Kotlin Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+
+# AndroidX Biometric & Security Crypto
+-keep class androidx.biometric.** { *; }
+-keep class androidx.security.crypto.** { *; }
 `,
   },
   {
