@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Zero metadata leak: No names, numbers, or history in shortcut definition -->
+    <shortcut
+        android:shortcutId="shortcut_private_vault"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_security"
+        android:shortcutShortLabel="@string/shortcut_vault_short"
+        android:shortcutLongLabel="@string/shortcut_vault_long">
+        <intent
+            android:action="com.privatecall.india.ACTION_PRIVATE_VAULT"
+            android:targetPackage="com.privatecall.india"
+            android:targetClass="com.privatecall.india.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

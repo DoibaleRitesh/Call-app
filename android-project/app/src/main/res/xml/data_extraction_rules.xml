@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Prevent Android Cloud Backup from syncing local encrypted database or private contacts -->
+        <exclude domain="database" path="call_private_local.db" />
+        <exclude domain="sharedpref" path="app_settings.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="call_private_local.db" />
+    </device-transfer>
+</data-extraction-rules>

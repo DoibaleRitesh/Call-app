@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Call</string>
+    <string name="shortcut_vault_short">Vault</string>
+    <string name="shortcut_vault_long">Private Contacts Vault</string>
+    <string name="private_contact_label">Private Contact</string>
+    <string name="cnap_network_verified">CNAP Telecom Verified</string>
+    <string name="default_dialer_prompt">Set Call as your default phone app to enable secure incoming call protection and Indian CNAP caller identification.</string>
+</resources>
